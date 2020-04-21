@@ -107,7 +107,7 @@ uint8_t dmxqueueClass::add(uint_dmxChannel channel, uint8_t dimSpeed, uint_dmxVa
 
       if (!intQueue[q].aktiv) {
         intQueue[q].aktiv = true;
-        onStart(channel);
+        //onStart(channel);
       }    
       
         // DEBUG_BEGIN(LOG_INFO);
@@ -151,7 +151,7 @@ void dmxqueueClass::Register_OnStop(event_queueState callback) {
 }
 
 void dmxqueueClass::stop(uint_dmxChannel channel){
-  onStop(channel);
+  //onStop(channel);
 }
 
 

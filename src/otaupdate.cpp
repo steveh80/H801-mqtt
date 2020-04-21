@@ -11,7 +11,7 @@ void AddRootPage() {
       httpServer.client().setNoDelay(true);
       const char compile_date[] = __DATE__ " " __TIME__;
       String tmp;
-      tmp = String("<p>UDPtoDMX H801 Version ") + String(compile_date) + 
+      tmp = String("<p>H801 mqtt version ") + String(compile_date) + 
         "<br /><br /><a href=\"/update\">OTA-Update</a><br /></p>";
       httpServer.send(200, F("text/html"), tmp);
       delay(100);

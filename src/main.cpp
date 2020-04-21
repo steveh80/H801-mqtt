@@ -19,33 +19,6 @@ WiFiClient espClient;
 PubSubClient mqttClient(mqtt_server, 1883, espClient);
 
 
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  // handle message arrived
-  //networkData(char *data, int datalen);
-}
-
-
-void mqttReconnect() {
-  // Loop until we're reconnected
-  while (!mqttClient.connected()) {
-    // Create a random client ID
-    String clientId = "H801-testing";
-    
-    // Attempt to connect
-    if (mqttClient.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
-      // Once connected, publish an announcement...
-      mqttClient.publish("H801/announce", "H801 connected");
-      // ... and resubscribe
-      mqttClient.subscribe("H801/commands");
-    } else {
-      delay(5000);
-    }
-  }
-}
-
-
-
-
 
 
 
@@ -238,13 +211,44 @@ void networkData(char *data, int datalen){
 
 
 
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+  // handle message arrived
+  networkData((char *) payload, length);
+}
+
+
+void mqttReconnect() {
+  // Loop until we're reconnected
+  while (!mqttClient.connected()) {
+    // Create a random client ID
+    String clientId = "H801-testing";
+    
+    // Attempt to connect
+    if (mqttClient.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+      // Once connected, publish an announcement...
+      mqttClient.publish("H801/announce", "H801 connected");
+      // ... and resubscribe
+      mqttClient.subscribe("H801/commands");
+    } else {
+      delay(5000);
+    }
+  }
+}
 
 void setup() {
+  Serial.begin(115200);
+
+  Serial.println("starting wifi manager");  
+  wifiManager.autoConnect("H801");
+  // wifiManager.setTimeout(180);
+  // if (!wifiManager.autoConnect("H801")) {
+  //   delay(3000);
+  //   ESP.reset();
+  //   delay(5000);
+  // }
+  Serial.println("connected");
+
   mqttClient.setCallback(mqttCallback);
-  if (!wifiManager.autoConnect("H801")) {
-    ESP.reset();
-    delay(5000);
-  }
 
   otaUpdate.init();
   queue.init();
