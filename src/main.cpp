@@ -4,22 +4,32 @@
 #include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>
 #include <PubSubClient.h>
+#include <FS.h>
+#include <ArduinoJson.h>
 
 #include "worker.h"
 #include "otaupdate.h"
 
+const int CHIP_ID = ESP.getChipId();
+
 #define maxPacketSize (32*2)  //MAX Message Size
 
-const char* mqtt_server = "192.168.1.8";
-const char* mqtt_username = "H801";
-const char* mqtt_password = "LcXbM4j";
+// default values for mqtt form
+char mqtt_server[40]      = "mqtt.server.de";
+char mqtt_port[6]         = "1883";
+char mqtt_user[20]        = "username";
+char mqtt_pass[20]        = "password";
+char device_name[40]      = "H801-"; // will later pre suffixed with device chip-id
 
-WiFiManager wifiManager;
+
 WiFiClient espClient;
-PubSubClient mqttClient(mqtt_server, 1883, espClient);
+PubSubClient mqttClient(espClient);
 
+bool shouldSaveConfig = false;
 
-
+void saveConfigCallback () {
+  shouldSaveConfig = true;
+}
 
 
 #define tunableWhiteAdjustment 20
@@ -213,22 +223,37 @@ void networkData(char *data, int datalen){
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   // handle message arrived
+  Serial.println("got new mqtt message");
   networkData((char *) payload, length);
+  Serial.println((char *) payload);
 }
 
 
 void mqttReconnect() {
+  char announce_topic[] = "H801/announce"; 
+
+  // create a disconnect message as last will
+  char will_message[60];
+  strcpy(will_message, device_name);
+  strcat(will_message, " disconnected");
+  
   // Loop until we're reconnected
   while (!mqttClient.connected()) {
-    // Create a random client ID
-    String clientId = "H801-testing";
-    
     // Attempt to connect
-    if (mqttClient.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+    if (mqttClient.connect(device_name, mqtt_user, mqtt_pass, announce_topic, 0, 1, will_message)) {
       // Once connected, publish an announcement...
-      mqttClient.publish("H801/announce", "H801 connected");
-      // ... and resubscribe
-      mqttClient.subscribe("H801/commands");
+      char message[60];
+      strcpy(message, device_name);
+      strcat(message, " connected");
+      mqttClient.publish(announce_topic, message);
+
+      // ... and subscribe
+      char topic[60];
+      strcat(topic, "H801/");
+      strcat(topic, device_name);
+      strcat(topic, "/commands");
+
+      mqttClient.subscribe(topic);
     } else {
       delay(5000);
     }
@@ -237,17 +262,93 @@ void mqttReconnect() {
 
 void setup() {
   Serial.begin(115200);
+  // while(!Serial) { delay(100); }
 
-  Serial.println("starting wifi manager");  
+  Serial.println();
+  Serial.print("chip id: ");
+  Serial.println(CHIP_ID);
+
+  strcat(device_name, String(CHIP_ID).c_str()); // add chip-ID to default device name
+
+  if (SPIFFS.begin()) {
+    if (SPIFFS.exists("/config.json")) {
+      File configFile = SPIFFS.open("/config.json", "r");
+      if (configFile) {
+        size_t size = configFile.size();
+        std::unique_ptr<char[]> buf(new char[size]);
+        configFile.readBytes(buf.get(), size);
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject& json = jsonBuffer.parseObject(buf.get());
+        json.printTo(Serial);
+        if (json.success()) {
+          strcpy(mqtt_server, json["mqtt_server"]);
+          strcpy(mqtt_port, json["mqtt_port"]);
+          strcpy(mqtt_user, json["mqtt_user"]);
+          strcpy(mqtt_pass, json["mqtt_pass"]);
+          strcpy(device_name, json["device_name"]);
+        } else {
+          Serial.println("failed to load json config");
+        }
+      }
+    }
+  } else {
+    Serial.println("failed to mount file system");
+  }
+
+  WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
+  WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
+  WiFiManagerParameter custom_mqtt_user("user", "mqtt username", mqtt_user, 20);
+  WiFiManagerParameter custom_mqtt_pass("pass", "mqtt password", mqtt_pass, 20);
+  WiFiManagerParameter custom_device_name("devicename", "device name", device_name, 30);
+
+  WiFiManager wifiManager;
+  wifiManager.setSaveConfigCallback(saveConfigCallback);
+
+  wifiManager.addParameter(&custom_mqtt_server);
+  wifiManager.addParameter(&custom_mqtt_port);
+  wifiManager.addParameter(&custom_mqtt_user);
+  wifiManager.addParameter(&custom_mqtt_pass);
+  wifiManager.addParameter(&custom_device_name);
+  
+  wifiManager.setTimeout(120);
   wifiManager.autoConnect("H801");
-  // wifiManager.setTimeout(180);
-  // if (!wifiManager.autoConnect("H801")) {
-  //   delay(3000);
-  //   ESP.reset();
-  //   delay(5000);
-  // }
+  
+  if (!wifiManager.autoConnect("H801")) {
+    Serial.println("failed to connect and hit timeout");
+    delay(3000);
+    ESP.reset();
+    delay(5000);
+  }
   Serial.println("connected");
 
+  strcpy(mqtt_server, custom_mqtt_server.getValue());
+  strcpy(mqtt_port, custom_mqtt_port.getValue());
+  strcpy(mqtt_user, custom_mqtt_user.getValue());
+  strcpy(mqtt_pass, custom_mqtt_pass.getValue());
+  strcpy(device_name, custom_device_name.getValue());
+  
+
+  if (shouldSaveConfig) {
+    Serial.println("saving config");
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.createObject();
+    json["mqtt_server"] = mqtt_server;
+    json["mqtt_port"] = mqtt_port;
+    json["mqtt_user"] = mqtt_user;
+    json["mqtt_pass"] = mqtt_pass;
+    json["device_name"] = device_name;
+
+    File configFile = SPIFFS.open("/config.json", "w");
+    if (!configFile) {
+      Serial.println("failed to open config file for writing");
+    }
+
+    json.printTo(Serial);
+    json.printTo(configFile);
+    configFile.close();
+  }
+
+  mqttClient.setServer(mqtt_server, atoi(mqtt_port));
   mqttClient.setCallback(mqttCallback);
 
   otaUpdate.init();
@@ -257,6 +358,9 @@ void setup() {
 }
 
 void loop() {
+  // Serial.println("Hello!");
+  // delay(1000);
+
   if (!mqttClient.connected()) {
     mqttReconnect();
   }

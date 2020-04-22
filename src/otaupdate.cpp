@@ -16,7 +16,7 @@ void AddRootPage() {
       httpServer.send(200, F("text/html"), tmp);
       delay(100);
       httpServer.client().stop();
-  });    
+  });
 }
 
 
