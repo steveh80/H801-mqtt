@@ -126,10 +126,6 @@ void workerClass::step() {
       }
     }  
   }
-/*  if (stress) {
-  DEBUG_PRINTln("T ");
-  DEBUG_PRINTln(micros() - stTime);
-  }*/
 }
 
 workerClass worker;

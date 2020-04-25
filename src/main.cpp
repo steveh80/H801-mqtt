@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
-#include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>
 #include <PubSubClient.h>
 #include <FS.h>
@@ -20,7 +19,7 @@ char mqtt_port[6]         = "1883";
 char mqtt_user[20]        = "username";
 char mqtt_pass[20]        = "password";
 char device_name[40]      = "H801-"; // will later pre suffixed with device chip-id
-
+long lastConnectedTimestamp = 0;
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -229,37 +228,6 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 }
 
 
-void mqttReconnect() {
-  char announce_topic[] = "H801/announce"; 
-
-  // create a disconnect message as last will
-  char will_message[60];
-  strcpy(will_message, device_name);
-  strcat(will_message, " disconnected");
-  
-  // Loop until we're reconnected
-  while (!mqttClient.connected()) {
-    // Attempt to connect
-    if (mqttClient.connect(device_name, mqtt_user, mqtt_pass, announce_topic, 0, 1, will_message)) {
-      // Once connected, publish an announcement...
-      char message[60];
-      strcpy(message, device_name);
-      strcat(message, " connected");
-      mqttClient.publish(announce_topic, message);
-
-      // ... and subscribe
-      char topic[60];
-      strcat(topic, "H801/");
-      strcat(topic, device_name);
-      strcat(topic, "/commands");
-
-      mqttClient.subscribe(topic);
-    } else {
-      delay(5000);
-    }
-  }
-}
-
 void setup() {
   Serial.begin(115200);
   // while(!Serial) { delay(100); }
@@ -348,24 +316,63 @@ void setup() {
     configFile.close();
   }
 
-  mqttClient.setServer(mqtt_server, atoi(mqtt_port));
-  mqttClient.setCallback(mqttCallback);
 
   otaUpdate.init();
+
   queue.init();
   virt_dmx.init(16);
   worker.init();
+
+  
+  mqttClient.setServer(mqtt_server, atoi(mqtt_port));
+  mqttClient.setCallback(mqttCallback);
+}
+
+boolean mqttReconnect() {
+  char announce_topic[] = "H801/announce"; 
+
+  // create a disconnect message as last will
+  char will_message[60];
+  strcpy(will_message, device_name);
+  strcat(will_message, " disconnected");
+
+  if (mqttClient.connect(device_name, mqtt_user, mqtt_pass, announce_topic, 0, 1, will_message)) {
+    // Once connected, publish an announcement...
+    char message[60];
+    strcpy(message, device_name);
+    strcat(message, " connected");
+    mqttClient.publish(announce_topic, message);
+
+    // ... and subscribe
+    char topic[60];
+    strcat(topic, "H801/");
+    strcat(topic, device_name);
+    strcat(topic, "/commands");
+
+    mqttClient.subscribe(topic);
+  }
+  return mqttClient.connected();
 }
 
 void loop() {
-  // Serial.println("Hello!");
-  // delay(1000);
-
-  if (!mqttClient.connected()) {
-    mqttReconnect();
-  }
-  mqttClient.loop();
   otaUpdate.loop();
   virt_dmx.loop();
   worker.loop();
+
+  // Problem: Wenn der H801 mit mqtt verbunden ist, schlägt der Update fehl.
+  // Was passiert? Die mqtt Verbindung wird getrennt, und möchte beim nächsten loop direkt wieder verbinden. 
+  // Findet das update während den 5 sekunden Karenz-Zeit statt, funktioniert es, weil der H801 nicht wieder zum mqtt broker verbinden kann.
+
+  long now = millis();
+  if (!mqttClient.connected()) {
+    if (now - lastConnectedTimestamp > 5000) {
+      // Attempt to reconnect
+      mqttReconnect();
+      lastConnectedTimestamp = 0;
+    }
+  } else {
+    // Client connected
+    lastConnectedTimestamp = now;
+    mqttClient.loop();
+  }
 }
