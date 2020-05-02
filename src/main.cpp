@@ -230,6 +230,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
+  Serial.set_tx(2);
   // while(!Serial) { delay(100); }
 
   Serial.println();
