@@ -217,14 +217,49 @@ void networkData(char *data, int datalen){
   
 }
 
+void dimChannel(int channel, int brightness) {
+  bool isOnOff = false;
+  uint8_t updSp = 2; // TODO: this should be set by input parameter
+  uint8_t gamma = 0; // TODO: this should be set by input parameter
+  uint8_t onoffSpeed = updSp; // TODO: this should be set by input parameter
 
+  isOnOff = queue.add(channel, updSp, brightness, gamma, true) > onOffthreshold;
+  queue.update(channel, onoffSpeed, isOnOff);
+}
 
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   // handle message arrived
   Serial.println("got new mqtt message");
-  networkData((char *) payload, length);
+  Serial.println(topic);
   Serial.println((char *) payload);
+  
+  // retrieve channel information from topic
+  char *channel_str = strrchr(topic, '-');
+  int channel = 0;
+  if (channel_str) {
+      channel_str = channel_str+1;
+      channel = atoi(channel_str);
+  } else {
+    Serial.println("could not retrieve proper channel");
+    return;
+  }
+  Serial.println("Channel: ");
+  Serial.println(channel);
+
+  // parse json object
+  StaticJsonDocument<256> message; // 256 hopefully is enough for everybody, my config has 149 bytes
+  DeserializationError err = deserializeJson(message, (char *) payload);
+
+  if (err) {
+    Serial.println("got broken json message");
+    Serial.println(err.c_str());
+    return;
+  }
+
+  if (message["type"] == "w") {
+    dimChannel(channel, message["bri"]);
+  }
 }
 
 
@@ -338,7 +373,7 @@ boolean mqttReconnect() {
   strcpy(will_message, device_name);
   strcat(will_message, " disconnected");
 
-  if (mqttClient.connect(device_name, mqtt_user, mqtt_pass, announce_topic, 0, 1, will_message)) {
+  if (mqttClient.connect(device_name, mqtt_user, mqtt_pass, announce_topic, 0, 1, will_message, false)) {
     // Once connected, publish an announcement...
     char message[60];
     strcpy(message, device_name);
@@ -349,9 +384,9 @@ boolean mqttReconnect() {
     char topic[60];
     strcat(topic, "H801/");
     strcat(topic, device_name);
-    strcat(topic, "/commands");
+    strcat(topic, "/#");
 
-    mqttClient.subscribe(topic);
+    mqttClient.subscribe(topic, 1);
   }
   return mqttClient.connected();
 }

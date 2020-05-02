@@ -14,12 +14,44 @@ The H801 tries to reconnect to the wifi/mqtt broker and collects the retained di
 ## MQTT 
 The H801 will ...
 * introduce it self using the topic H801/announce
-* subscribe to the topic H801/device_name/commands
+* subscribe to the topic H801/device_name/channel-1 to channel-5
 
-For now the commands are using the same protocol as UDPtoDMX:
-https://github.com/steveh80/UDPtoDMX/blob/master/docs/protocol.pdf
+### Message protocol
+The H801 takes a json package for each channel. Some commands require multiple channels (eg. RGB), in that case you have to send the message to the first channel. 
+
+Example: If you are using channel 1 to 3 for and RGB LED, send your message only to channel 1.
+
+Parameters:
+* bri - brightness in percent
+* type - Type of message. Has to be one of w, rgb, cct (tunable white)
+* colortemp - Color temperature in Kelvin. Only used in type "cct". 
+* rgb - RGB value
+
+Example messages:
+```
+{
+    "bri": 0,
+    "type": "w"
+}
+```
+
+```
+{
+    "bri": 20,
+    "type": "cw",
+    "colortemp": "3000"
+}
+```
+
+```
+{
+    "bri": 100,
+    "type": "rgb",
+    "rgb": "334422"
+}
+```
 
 ## Thanks to
 
-This project is highly influenced by the awesome work of:
+This project was highly influenced by the awesome work of:
 * Robert Lechners UDPtoDMX https://github.com/LechnerRobert/UDPtoDMX
