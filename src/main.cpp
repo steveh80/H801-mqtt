@@ -245,17 +245,18 @@ void setup() {
         size_t size = configFile.size();
         std::unique_ptr<char[]> buf(new char[size]);
         configFile.readBytes(buf.get(), size);
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject& json = jsonBuffer.parseObject(buf.get());
-        json.printTo(Serial);
-        if (json.success()) {
-          strcpy(mqtt_server, json["mqtt_server"]);
-          strcpy(mqtt_port, json["mqtt_port"]);
-          strcpy(mqtt_user, json["mqtt_user"]);
-          strcpy(mqtt_pass, json["mqtt_pass"]);
-          strcpy(device_name, json["device_name"]);
-        } else {
+        
+        StaticJsonDocument<256> doc; // 256 hopefully is enough for everybody, my config has 149 bytes
+        DeserializationError err = deserializeJson(doc, buf.get());
+
+        if (err) {
           Serial.println("failed to load json config");
+        } else {
+          strcpy(mqtt_server, doc["mqtt_server"]);
+          strcpy(mqtt_port, doc["mqtt_port"]);
+          strcpy(mqtt_user, doc["mqtt_user"]);
+          strcpy(mqtt_pass, doc["mqtt_pass"]);
+          strcpy(device_name, doc["device_name"]);
         }
       }
     }
@@ -298,21 +299,21 @@ void setup() {
 
   if (shouldSaveConfig) {
     Serial.println("saving config");
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject& json = jsonBuffer.createObject();
-    json["mqtt_server"] = mqtt_server;
-    json["mqtt_port"] = mqtt_port;
-    json["mqtt_user"] = mqtt_user;
-    json["mqtt_pass"] = mqtt_pass;
-    json["device_name"] = device_name;
+
+    StaticJsonDocument<256> doc; // 256 hopefully is enough for everybody, my config has 149 bytes
+    doc["mqtt_server"] = mqtt_server;
+    doc["mqtt_port"] = mqtt_port;
+    doc["mqtt_user"] = mqtt_user;
+    doc["mqtt_pass"] = mqtt_pass;
+    doc["device_name"] = device_name;
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {
       Serial.println("failed to open config file for writing");
     }
 
-    json.printTo(Serial);
-    json.printTo(configFile);
+    serializeJson(doc, Serial);
+    serializeJson(doc, configFile);
     configFile.close();
   }
 
