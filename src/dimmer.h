@@ -8,7 +8,7 @@ class Dimmer
     public:
         void init();
         void loop();
-        void dimChannel(int channel, int brightness);
+        void dimChannel(uint8_t channel, int brightness, uint8_t speed = 2, uint8_t curve = 0, uint8_t onOffspeed = 2);
 };
 
 extern Dimmer dimmer;

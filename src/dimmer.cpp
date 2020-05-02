@@ -13,14 +13,9 @@ void Dimmer::loop() {
     worker.loop();
 }
 
-void Dimmer::dimChannel(int channel, int brightness) {
-    bool isOnOff = false;
-    uint8_t updSp = 2; // TODO: this should be set by input parameter
-    uint8_t gamma = 0; // TODO: this should be set by input parameter
-    uint8_t onoffSpeed = updSp; // TODO: this should be set by input parameter
-
-    isOnOff = queue.add(channel, updSp, brightness, gamma, true) > onOffthreshold;
-    queue.update(channel, onoffSpeed, isOnOff);
+void Dimmer::dimChannel(uint8_t channel, int brightness, uint8_t speed, uint8_t curve, uint8_t onOffspeed) {
+    bool isOnOff = queue.add(channel, speed, brightness, curve, true) > onOffthreshold;
+    queue.update(channel, (onOffspeed == 0 ? speed : onOffspeed), isOnOff);
 }
 
 Dimmer dimmer;

@@ -26,12 +26,16 @@ Parameters:
 * type - Type of message. Has to be one of w, rgb, cct (tunable white)
 * colortemp - Color temperature in Kelvin. Only used in type "cct". 
 * rgb - RGB value
+* speed - Optional. A factor for fading speed. Integer 0-255 (255 no fading, 1 fast, 99 slow, +100 4-times faster, +200 8-times faster)
+* curve - Optional. Dimming curve. Integer (0 - linear, 1-3 logarithmic curve)
 
 Example messages:
 ```
 {
     "bri": 0,
-    "type": "w"
+    "type": "w",
+    "speed": 4,
+    "curve": 2
 }
 ```
 

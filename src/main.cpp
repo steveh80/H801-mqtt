@@ -50,8 +50,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
   // parse json object
   StaticJsonDocument<256> message; // 256 hopefully is enough for everybody, my config has 149 bytes
-  DeserializationError err = deserializeJson(message, (char *) payload);
-
+  DeserializationError err = deserializeJson(message, (char *) payload, length);
+  
   if (err) {
     Serial.println("got broken json message");
     Serial.println(err.c_str());
@@ -59,7 +59,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   }
 
   if (message["type"] == "w") {
-    dimmer.dimChannel(channel, message["bri"]);
+    dimmer.dimChannel(channel, message["bri"], message["speed"], message["curve"], message["onOffSpeed"]);
   }
 }
 
