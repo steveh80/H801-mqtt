@@ -25,7 +25,7 @@ Parameters:
 * bri - brightness in percent
 * type - Type of message. Has to be one of w, rgb, cct (tunable white)
 * colortemp - Color temperature in Kelvin. Only used in type "cct". 
-* rgb - RGB value (RRRGGGBBB)
+* rgb - RGB value in loxone format (BBBGGGRRR, each section would be 0-100). Example "100000000" would be 100% blue, "50" would be 50% red. (loxone format: R + G * 1000 + B * 1000000)
 * speed - Optional. A factor for fading speed. Integer 0-255 (255 no fading, 1 fast, 99 slow, +100 4-times faster, +200 8-times faster)
 * curve - Optional. Dimming curve. Integer (0 - linear, 1-3 logarithmic curve)
 
@@ -50,7 +50,7 @@ Example messages:
 ```
 {
     "type": "rgb",
-    "rgb": "100100100"
+    "rgb": "100000000"
 }
 ```
 
