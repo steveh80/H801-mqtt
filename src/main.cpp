@@ -68,6 +68,10 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   if (message["type"] == "cct") {
     dimmer.dimCCT(channel, message["bri"], message["colortemp"], speed, message["curve"], message["onOffSpeed"]);
   }
+
+  if (message["type"] == "rgb") {
+    dimmer.dimRGB(channel, message["rgb"], speed, message["curve"], message["onOffSpeed"]);
+  }
 }
 
 

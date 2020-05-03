@@ -16,6 +16,9 @@ class Dimmer
 
         // dim a tunable white led, starting with warm white on channel, followed by cold white on channel + 1
         void dimCCT(uint8_t startChannel, uint8_t brightness, uint16_t colorTemp, uint8_t speed = 2, uint8_t curve = 0, uint8_t onOffSpeed = 2);
+
+        // dim a RGB LED
+        void dimRGB(uint8_t startChannel, uint32_t rgb, uint8_t speed = 2, uint8_t curve = 0, uint8_t onOffSpeed = 2);
 };
 
 extern Dimmer dimmer;
