@@ -42,7 +42,7 @@ Example messages:
 ```
 {
     "bri": 20,
-    "type": "cw",
+    "type": "cct",
     "colortemp": "3000"
 }
 ```

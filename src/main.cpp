@@ -58,8 +58,15 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     return;
   }
 
+  //default values for params
+  uint8_t speed = ( message["speed"] == NULL ? 2 : message["speed"]);
+
   if (message["type"] == "w") {
-    dimmer.dimChannel(channel, message["bri"], message["speed"], message["curve"], message["onOffSpeed"]);
+    dimmer.dimChannel(channel, message["bri"], speed, message["curve"], message["onOffSpeed"]);
+  }
+
+  if (message["type"] == "cct") {
+    dimmer.dimCCT(channel, message["bri"], message["colortemp"], speed, message["curve"], message["onOffSpeed"]);
   }
 }
 
