@@ -46,7 +46,7 @@ void virt_dmxClass::write(uint_dmxChannel channel, uint_dmxValue value){
   }
 };
 
-void  virt_dmxClass::init(uint_dmxChannel maxChannels) {
+void  virt_dmxClass::init() {
   lastUpdate = millis();
   pinMode(redPIN, OUTPUT);
   pinMode(greenPIN, OUTPUT);
