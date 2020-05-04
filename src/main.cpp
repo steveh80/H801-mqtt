@@ -61,15 +61,15 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   //default values for params
   uint8_t speed = ( message["speed"] == NULL ? 2 : message["speed"]);
 
-  if (message["type"] == "w") {
+  if (message["mode"] == "single") {
     dimmer.dimChannel(channel, message["bri"], speed, message["curve"], message["onOffSpeed"]);
   }
 
-  if (message["type"] == "cct") {
+  if (message["mode"] == "cct") {
     dimmer.dimCCT(channel, message["bri"], message["colortemp"], speed, message["curve"], message["onOffSpeed"]);
   }
 
-  if (message["type"] == "lumitech-cct") {
+  if (message["mode"] == "lumitech-cct") {
     int lumitech = message["lumitech"];
     lumitech = constrain(lumitech, 200002700, 201006500); // allow onlytunable white values
     lumitech = lumitech - 200000000; // remove lumitech "header"
@@ -79,7 +79,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     dimmer.dimCCT(channel, brightness, colortemp, speed, message["curve"], message["onOffSpeed"]);
   }
 
-  if (message["type"] == "rgb") {
+  if (message["mode"] == "rgb") {
     dimmer.dimRGB(channel, message["rgb"], speed, message["curve"], message["onOffSpeed"]);
   }
 }

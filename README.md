@@ -23,8 +23,8 @@ Example: If you are using channel 1 to 3 for and RGB LED, send your message only
 
 #### Parameters:
 * bri - brightness in percent
-* type - Type of message. Has to be one of w, rgb, cct (tunable white), lumitech-cct (special mode for tunable white in loxone lumitech format)
-* colortemp - Color temperature in Kelvin. Only used in type "cct". 
+* mode - Type of message. Has to be one of single, rgb, cct (tunable white), lumitech-cct (special mode for tunable white in loxone lumitech format)
+* colortemp - Color temperature in Kelvin. Only used in mode "cct". 
 * rgb - RGB value in loxone format (BBBGGGRRR, each section would be 0-100). Example "100000000" would be 100% blue, "50" would be 50% red. (loxone format: R + G * 1000 + B * 1000000)
 * speed - Optional. A factor for fading speed. Integer 0-255 (255 no fading, 1 fast, 99 slow, +100 4-times faster, +200 8-times faster)
 * curve - Optional. Dimming curve. Integer (0 - linear, 1-3 logarithmic curve)
@@ -33,7 +33,7 @@ Example messages:
 ```
 {
     "bri": 0, // 0 means off
-    "type": "w",
+    "mode": "single",
     "speed": 4,
     "curve": 2
 }
@@ -42,21 +42,21 @@ Example messages:
 ```
 {
     "bri": 20,
-    "type": "cct", // tunable white (ww/cw)
+    "mode": "cct", // tunable white (ww/cw)
     "colortemp": "3000"
 }
 ```
 
 ```
 {
-    "type": "rgb",
+    "mode": "rgb",
     "rgb": "100000000" // blue
 }
 ```
 
 ```
 {
-    "type": "lumitech-cct",
+    "mode": "lumitech-cct",
     "lumitech": "200252700" // 25% at 2700K
 }
 ```
