@@ -21,9 +21,9 @@ The H801 takes a json package for each channel. Some commands require multiple c
 
 Example: If you are using channel 1 to 3 for and RGB LED, send your message only to channel 1.
 
-Parameters:
+#### Parameters:
 * bri - brightness in percent
-* type - Type of message. Has to be one of w, rgb, cct (tunable white)
+* type - Type of message. Has to be one of w, rgb, cct (tunable white), lumitech-cct (special mode for tunable white in loxone lumitech format)
 * colortemp - Color temperature in Kelvin. Only used in type "cct". 
 * rgb - RGB value in loxone format (BBBGGGRRR, each section would be 0-100). Example "100000000" would be 100% blue, "50" would be 50% red. (loxone format: R + G * 1000 + B * 1000000)
 * speed - Optional. A factor for fading speed. Integer 0-255 (255 no fading, 1 fast, 99 slow, +100 4-times faster, +200 8-times faster)
@@ -32,7 +32,7 @@ Parameters:
 Example messages:
 ```
 {
-    "bri": 0,
+    "bri": 0, // 0 means off
     "type": "w",
     "speed": 4,
     "curve": 2
@@ -42,7 +42,7 @@ Example messages:
 ```
 {
     "bri": 20,
-    "type": "cct",
+    "type": "cct", // tunable white (ww/cw)
     "colortemp": "3000"
 }
 ```
@@ -50,10 +50,16 @@ Example messages:
 ```
 {
     "type": "rgb",
-    "rgb": "100000000"
+    "rgb": "100000000" // blue
 }
 ```
 
+```
+{
+    "type": "lumitech-cct",
+    "lumitech": "200252700" // 25% at 2700K
+}
+```
 ## Thanks to
 
 This project was highly influenced by the awesome work of:
