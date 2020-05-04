@@ -88,7 +88,6 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   Serial.begin(115200);
   Serial.set_tx(2);
-  // while(!Serial) { delay(100); }
 
   Serial.println();
   Serial.print("chip id: ");
@@ -177,6 +176,7 @@ void setup() {
 
 
   otaUpdate.init();
+  otaUpdate.setDeviceName(device_name);
 
   dimmer.init();
   virt_dmx.init(16);
