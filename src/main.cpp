@@ -5,6 +5,7 @@
 #include <PubSubClient.h>
 #include <FS.h>
 #include <ArduinoJson.h>
+#include <ESP8266mDNS.h>
 
 #include "otaupdate.h"
 #include "dimmer.h"
@@ -135,7 +136,7 @@ void setup() {
   wifiManager.addParameter(&custom_mqtt_user);
   wifiManager.addParameter(&custom_mqtt_pass);
   wifiManager.addParameter(&custom_device_name);
-  
+
   wifiManager.setTimeout(120);
   wifiManager.autoConnect("H801");
   
@@ -174,6 +175,8 @@ void setup() {
     configFile.close();
   }
 
+  MDNS.begin(device_name);
+  MDNS.addService("http", "tcp", 80);
 
   otaUpdate.init();
   otaUpdate.setDeviceName(device_name);
@@ -213,6 +216,7 @@ boolean mqttReconnect() {
 }
 
 void loop() {
+  MDNS.update();
   otaUpdate.loop();
   virt_dmx.loop();
   dimmer.loop();
@@ -223,7 +227,7 @@ void loop() {
 
   long now = millis();
   if (!mqttClient.connected()) {
-    if (now - lastConnectedTimestamp > 5000) {
+    if (now - lastConnectedTimestamp > 1000) {
       // Attempt to reconnect
       mqttReconnect();
       lastConnectedTimestamp = 0;
