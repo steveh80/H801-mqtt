@@ -64,3 +64,4 @@ Example messages:
 
 This project was highly influenced by the awesome work of:
 * Robert Lechners UDPtoDMX https://github.com/LechnerRobert/UDPtoDMX
+* Stefan Brüns https://github.com/StefanBruens/ESP8266_new_pwm
