@@ -60,6 +60,11 @@ Example messages:
     "lumitech": "200252700" // 25% at 2700K
 }
 ```
+
+## Links
+* Find more about how to use this project with Loxone here: https://www.loxwiki.eu/pages/viewpage.action?pageId=13307747#RGBWWWLANLEDDimmermitH801(ESP8266)-EinenochganzandereFirmware:
+
+
 ## Thanks to
 
 This project was highly influenced by the awesome work of:
