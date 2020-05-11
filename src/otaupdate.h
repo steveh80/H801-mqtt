@@ -1,14 +1,16 @@
 #include "settings.h"
+#include "wifi.h"
 
-class OTAUpdate
-{  
-  private:
-    Settings* settings;
-    void addIndex();
+class OTAUpdate {
+    private:
+        Settings *settings;
+        Wifi *wifi;
+        void addRoutes();
 
-  public:
-    void initWithSettings(Settings* settings);  
-    void loop();
+    public:
+        void initWithSettings(Settings *settings);
+        void addWifi(Wifi *wifi);
+        void loop();
 };
 
 extern OTAUpdate otaUpdate;

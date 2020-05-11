@@ -3,6 +3,8 @@
 #include "dimmer.h"
 #include "settings.h"
 
+#define MQTT_KEEPALIVE = 360
+
 class Mqtt {  
     private:
         Settings* settings;

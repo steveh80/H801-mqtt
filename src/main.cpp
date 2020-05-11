@@ -20,8 +20,9 @@ void setup() {
     }
     MDNS.addService("http", "tcp", 80);
 
-    otaUpdate.initWithSettings(&settings);
     mqtt.initWithSettings(&settings);
+    otaUpdate.initWithSettings(&settings);
+    otaUpdate.addWifi(&wifi);
 
     dimmer.init();
     virt_dmx.init();
@@ -29,9 +30,9 @@ void setup() {
 
 
 void loop() {
+    mqtt.loop();
     MDNS.update();
     otaUpdate.loop();
     virt_dmx.loop();
     dimmer.loop();
-    mqtt.loop();
 }

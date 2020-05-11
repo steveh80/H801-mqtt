@@ -1,3 +1,6 @@
+#ifndef WIFI_H
+#define WIFI_H
+
 #include <DNSServer.h>
 #include <WiFiManager.h>
 #include "settings.h"
@@ -11,6 +14,9 @@ class Wifi
     public:
         void initWithSettings(Settings* settings);
         void loop();
+        void resetSettings();
 };
 
 extern Wifi wifi;
+
+#endif

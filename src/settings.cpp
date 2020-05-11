@@ -17,10 +17,13 @@ void Settings::init() {
                 if (err) {
                     Serial.println("failed to load json config");
                 } else {
+                    Serial.println("Settings were loaded:");
+                    serializeJson(doc, Serial);
+                    
                     strcpy(this->mqtt_server, doc["mqtt_server"]);
                     strcpy(this->mqtt_port, doc["mqtt_port"]);
-                    strcpy(this->mqtt_user, doc["mqtt_user"]);
-                    strcpy(this->mqtt_pass, doc["mqtt_pass"]);
+                    strcpy(this->mqtt_user, doc["mqtt_user"].as<char*>());
+                    strcpy(this->mqtt_pass, doc["mqtt_pass"].as<char*>());
                     strcpy(this->device_name, doc["device_name"]);
                 }
             }
@@ -31,6 +34,7 @@ void Settings::init() {
 }
 
 void Settings::save() {
+    Serial.println("Settings are about to be saved.");
     StaticJsonDocument<256> doc; // 256 hopefully is enough for everybody, my config has 149 bytes
     doc["mqtt_server"] = this->mqtt_server;
     doc["mqtt_port"]   = this->mqtt_port;
@@ -46,6 +50,10 @@ void Settings::save() {
     serializeJson(doc, Serial);
     serializeJson(doc, configFile);
     configFile.close();
+}
+
+void Settings::remove() {
+    SPIFFS.remove("/config.json");
 }
 
 Settings settings;

@@ -21,6 +21,7 @@ class Settings
 
     void init();
     void save();
+    void remove();
 };
 
 extern Settings settings;

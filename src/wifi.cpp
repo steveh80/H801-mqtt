@@ -1,7 +1,8 @@
 #include "wifi.h"
 
+bool shouldSaveConfig = false;
 void saveConfigCallback () {
-    settings.save();
+    shouldSaveConfig = true;
 }
 
 void Wifi::initWithSettings(Settings* settings) { 
@@ -9,8 +10,8 @@ void Wifi::initWithSettings(Settings* settings) {
 
     WiFiManagerParameter custom_mqtt_server("server", "mqtt server", settings->mqtt_server, 40);
     WiFiManagerParameter custom_mqtt_port("port", "mqtt port", settings->mqtt_port, 6);
-    WiFiManagerParameter custom_mqtt_user("user", "mqtt username", settings->mqtt_user, 20);
-    WiFiManagerParameter custom_mqtt_pass("pass", "mqtt password", settings->mqtt_pass, 20);
+    WiFiManagerParameter custom_mqtt_user("user", "mqtt username", "", 20);
+    WiFiManagerParameter custom_mqtt_pass("pass", "mqtt password", "", 20);
     WiFiManagerParameter custom_device_name("devicename", "device name", settings->device_name, 30);
 
     wifiManager.setSaveConfigCallback(saveConfigCallback);
@@ -37,6 +38,16 @@ void Wifi::initWithSettings(Settings* settings) {
     strcpy(settings->mqtt_user, custom_mqtt_user.getValue());
     strcpy(settings->mqtt_pass, custom_mqtt_pass.getValue());
     strcpy(settings->device_name, custom_device_name.getValue());
+
+    if ( shouldSaveConfig ) {
+        settings->save();
+    }
+}
+
+void Wifi::resetSettings() {
+    Serial.println("Wifimanager settings are about to be deleted!");
+    this->settings->remove();
+    wifiManager.resetSettings();
 }
 
 void Wifi::loop() { 
