@@ -1,13 +1,14 @@
+#include "settings.h"
+
 class OTAUpdate
 {  
   private:
-    char* device_name;
+    Settings* settings;
     void addIndex();
 
   public:
-    void init();  
+    void initWithSettings(Settings* settings);  
     void loop();
-    void setDeviceName(char* device_name);
 };
 
 extern OTAUpdate otaUpdate;

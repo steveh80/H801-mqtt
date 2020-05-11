@@ -20,9 +20,7 @@ void setup() {
     }
     MDNS.addService("http", "tcp", 80);
 
-    otaUpdate.init();
-    otaUpdate.setDeviceName(settings.device_name);
-
+    otaUpdate.initWithSettings(&settings);
     mqtt.initWithSettings(&settings);
 
     dimmer.init();
