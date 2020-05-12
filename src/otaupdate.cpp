@@ -11,9 +11,9 @@ void OTAUpdate::addRoutes() {
         httpServer.client().setNoDelay(true);
         const char compile_date[] = __DATE__ " " __TIME__;
         String tmp = String("<html><head><link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'></head>") +
-            "<body><div class='container'><h1>H801 mqtt</h1>" +
+            "<body><div class='container'><h1>" + settings->device_name + "</h1>" +
             "Version: " + String(compile_date) +
-            "<br>Device name: " + settings->device_name +
+            "<br>Device address: " + settings->device_name + ".local (" + WiFi.localIP().toString() + ")" + 
             "<br>MQTT server: " + settings->mqtt_server + ":" + settings->mqtt_port +
             "<br>MQTT User: " + settings->mqtt_user +
             "</p><p><a href='update' class='btn btn-primary'>OTA-Update</a> " +
@@ -29,7 +29,7 @@ void OTAUpdate::addRoutes() {
     httpServer.on("/reset", HTTP_GET, [&]() {
         String tmp = String("<html><head><link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>") +
             "<meta http-equiv='refresh' content='10; /'>" +
-            "</head><body><div class='container'><h1>H801 mqtt</h1>" +
+            "</head><body><div class='container'><h1>" + settings->device_name + "</h1>" +
             "<div class='alert alert-danger'>Reset of H801 was successful, you can reconfigure it. </div>" + 
             "</div></body></html>";
         httpServer.send(200, F("text/html"), tmp);
@@ -42,7 +42,7 @@ void OTAUpdate::addRoutes() {
     httpServer.on("/reboot", HTTP_GET, [&]() {
         String tmp = String("<html><head><link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>") +
             "<meta http-equiv='refresh' content='10; /'>" +
-            "</head><body><div class='container'><h1>H801 mqtt</h1>" +
+            "</head><body><div class='container'><h1>" + settings->device_name + "</h1>" +
             "<div class='alert alert-danger'>Device is rebooting.</div>" + 
             "</div></body></html>";
         httpServer.send(200, F("text/html"), tmp);
