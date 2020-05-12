@@ -31,15 +31,14 @@ void Wifi::initWithSettings(Settings* settings) {
         ESP.reset();
         delay(5000);
     }
-    Serial.println("connected");
-
-    strcpy(settings->mqtt_server, custom_mqtt_server.getValue());
-    strcpy(settings->mqtt_port, custom_mqtt_port.getValue());
-    strcpy(settings->mqtt_user, custom_mqtt_user.getValue());
-    strcpy(settings->mqtt_pass, custom_mqtt_pass.getValue());
-    strcpy(settings->device_name, custom_device_name.getValue());
+    Serial.println("Wifi connected");
 
     if ( shouldSaveConfig ) {
+        strcpy(settings->mqtt_server, custom_mqtt_server.getValue());
+        strcpy(settings->mqtt_port, custom_mqtt_port.getValue());
+        strcpy(settings->mqtt_user, custom_mqtt_user.getValue());
+        strcpy(settings->mqtt_pass, custom_mqtt_pass.getValue());
+        strcpy(settings->device_name, custom_device_name.getValue());
         settings->save();
     }
 }
@@ -52,6 +51,5 @@ void Wifi::resetSettings() {
 
 void Wifi::loop() { 
 }
-
 
 Wifi wifi;
