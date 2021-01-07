@@ -23,6 +23,7 @@ void Wifi::initWithSettings(Settings* settings) {
     wifiManager.addParameter(&custom_device_name);
 
     wifiManager.setTimeout(120);
+    wifiManager.setHostname(settings->device_name);
     wifiManager.autoConnect("H801");
 
     if (!wifiManager.autoConnect("H801")) {
