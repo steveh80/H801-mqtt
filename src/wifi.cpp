@@ -22,16 +22,8 @@ void Wifi::initWithSettings(Settings* settings) {
     wifiManager.addParameter(&custom_mqtt_pass);
     wifiManager.addParameter(&custom_device_name);
 
-    wifiManager.setTimeout(120);
-    wifiManager.setHostname(settings->device_name);
-    wifiManager.autoConnect("H801");
+    this->connect();
 
-    if (!wifiManager.autoConnect("H801")) {
-        Serial.println("failed to connect and hit timeout");
-        delay(3000);
-        ESP.reset();
-        delay(5000);
-    }
     Serial.println("Wifi connected");
 
     if ( shouldSaveConfig ) {
@@ -44,6 +36,19 @@ void Wifi::initWithSettings(Settings* settings) {
     }
 }
 
+void Wifi::connect() {
+    wifiManager.setHostname(settings->device_name);
+    wifiManager.setConfigPortalTimeout(30);
+
+    // This will block until a WiFi is connected, or the timeout has elapsed
+    if ( ! wifiManager.autoConnect("H801") ) {
+        Serial.println("failed to connect and hit timeout");
+        delay(3000);
+        ESP.restart();
+        delay(5000);
+    }
+}
+
 void Wifi::resetSettings() {
     Serial.println("Wifimanager settings are about to be deleted!");
     this->settings->remove();
@@ -51,6 +56,11 @@ void Wifi::resetSettings() {
 }
 
 void Wifi::loop() { 
+    // ensure wifi connection
+    // If we're already connected, do nothing
+    if ( WiFi.status() != WL_CONNECTED ) {
+        this->connect();
+    }
 }
 
 Wifi wifi;

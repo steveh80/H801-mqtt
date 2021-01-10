@@ -13,6 +13,7 @@ class Wifi
 
     public:
         void initWithSettings(Settings* settings);
+        void connect();
         void loop();
         void resetSettings();
 };

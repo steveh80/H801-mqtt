@@ -36,7 +36,8 @@ void OTAUpdate::addRoutes() {
         delay(1000);
         httpServer.client().stop();
         this->wifi->resetSettings();
-        ESP.reset();
+        this->settings->remove();
+        ESP.restart();
     });
 
     httpServer.on("/reboot", HTTP_GET, [&]() {
@@ -47,7 +48,7 @@ void OTAUpdate::addRoutes() {
             "</div></body></html>";
         httpServer.send(200, F("text/html"), tmp);
         httpServer.client().stop();
-        ESP.reset();
+        ESP.restart();
     });
 
     httpServer.on("/config", HTTP_GET, [&]() {
@@ -82,7 +83,7 @@ void OTAUpdate::addRoutes() {
         httpServer.send(200, "text/html", "<META http-equiv='refresh' content='10;URL=/'>Ok. Rebooting!");
 
         httpServer.client().stop();
-        ESP.reset();
+        ESP.restart();
     });
 }
 
