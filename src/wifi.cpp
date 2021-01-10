@@ -38,7 +38,7 @@ void Wifi::initWithSettings(Settings* settings) {
 
 void Wifi::connect() {
     wifiManager.setHostname(settings->device_name);
-    wifiManager.setConfigPortalTimeout(30);
+    wifiManager.setConfigPortalTimeout(120);
 
     // This will block until a WiFi is connected, or the timeout has elapsed
     if ( ! wifiManager.autoConnect("H801") ) {
