@@ -65,16 +65,20 @@ void Mqtt::initWithSettings(Settings *settings) {
 }
 
 void Mqtt::loop() {
-    long now = millis();
     if (!mqttClient.connected()) {
-        if (now - lastConnectedTimestamp > 1000) {
+        if (!WiFi.isConnected()) {
+            return;
+        }
+        long now = millis();
+        if (now - this->lastReconnectAttempt > 5000) {
+            this->lastReconnectAttempt = now;
             // Attempt to reconnect
-            this->reconnect();
-            lastConnectedTimestamp = 0;
+            if (this->reconnect()) {
+                this->lastReconnectAttempt = 0;
+            }
         }
     } else {
         // Client connected
-        lastConnectedTimestamp = now;
         mqttClient.loop();
     }
 }

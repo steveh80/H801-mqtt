@@ -8,7 +8,7 @@
 class Mqtt {  
     private:
         Settings* settings;
-        long lastConnectedTimestamp = 0;
+        long lastReconnectAttempt = 0;
 
     public:
         void initWithSettings(Settings* settings);  
