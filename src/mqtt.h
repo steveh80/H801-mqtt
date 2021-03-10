@@ -1,9 +1,9 @@
+#define MQTT_KEEPALIVE = 360
+
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include "dimmer.h"
 #include "settings.h"
-
-#define MQTT_KEEPALIVE = 360
 
 class Mqtt {  
     private:
