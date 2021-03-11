@@ -5,12 +5,13 @@ PubSubClient mqttClient(espClient);
 
 void mqttCallback(char *topic, byte *payload, unsigned int length) {
     // handle message arrived
-    Serial.println("got new mqtt message");
+    Serial.print("Got new mqtt message on topic: ");
     Serial.println(topic);
+    Serial.print("Payload: ");
     Serial.println((char *)payload);
 
     // retrieve channel information from topic
-    char *channel_str = strrchr(topic, '-');
+    char *channel_str = strrchr(topic, '/');
     int channel = 0;
     if (channel_str) {
         channel_str = channel_str + 1;
@@ -19,7 +20,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
         Serial.println("could not retrieve proper channel");
         return;
     }
-    Serial.println("Channel: ");
+    Serial.print("Channel: ");
     Serial.println(channel);
 
     // parse json object
@@ -100,10 +101,10 @@ boolean Mqtt::reconnect() {
 
         // ... and subscribe
         char topic[60];
-        strcat(topic, "H801/");
-        strcat(topic, settings->device_name);
-        strcat(topic, "/#");
-
+        strcpy(topic, base_topic);
+        strcat(topic, "channel/#");
+        Serial.print("mqtt subscribe to topic ");
+        Serial.println(topic);
         mqttClient.subscribe(topic, 1);
     }
     return mqttClient.connected();

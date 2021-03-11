@@ -13,8 +13,8 @@ The H801 tries to reconnect to the wifi/mqtt broker and collects the retained di
 
 ## MQTT 
 The H801 will ...
-* introduce it self using the topic H801/announce
-* subscribe to the topic H801/device_name/channel-1 to channel-5
+* give its connection state to the topic H801/device_name/connected (1 or 0)
+* subscribe to the topic H801/device_name/channel/1 to channel/5
 
 ### Message protocol
 The H801 takes a json package for each channel. Some commands require multiple channels (eg. RGB), in that case you have to send the message to the first channel. 
