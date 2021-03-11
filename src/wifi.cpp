@@ -58,7 +58,7 @@ void Wifi::resetSettings() {
 void Wifi::loop() { 
     // ensure wifi connection
     // If we're already connected, do nothing
-    if ( WiFi.status() != WL_CONNECTED ) {
+    if (!WiFi.isConnected()) {
         this->connect();
     }
 }

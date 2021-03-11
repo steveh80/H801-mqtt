@@ -11,6 +11,8 @@ void setup() {
     Serial.begin(115200);
     Serial.set_tx(2);
 
+    Serial.println("begin");
+
     settings.init();
     
     wifi.initWithSettings(&settings);
@@ -30,6 +32,7 @@ void setup() {
 
 
 void loop() {
+    wifi.loop();
     mqtt.loop();
     MDNS.update();
     otaUpdate.loop();
