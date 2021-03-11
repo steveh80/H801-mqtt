@@ -90,19 +90,30 @@ void Mqtt::loop() {
 }
 
 boolean Mqtt::reconnect() {
-    char announce_topic[] = "H801/announce";
+    const char compile_date[] = __DATE__ " " __TIME__;
+
+    // prepare base topic
+    char base_topic[30];
+    strcat(base_topic, "H801/");
+    strcat(base_topic, settings->device_name);
+    strcat(base_topic, "/"); 
+
+    char connect_topic[60];
+    strcpy(connect_topic, base_topic);
+    strcat(connect_topic, "connected");
 
     // create a disconnect message as last will
-    char will_message[60];
-    strcpy(will_message, settings->device_name);
-    strcat(will_message, " disconnected");
+    const char will_message[] = "0";
 
-    if (mqttClient.connect(settings->device_name, settings->mqtt_user, settings->mqtt_pass, announce_topic, 0, 1, will_message, false)) {
+    if (mqttClient.connect(settings->device_name, settings->mqtt_user, settings->mqtt_pass, connect_topic, 0, true, will_message, false)) { 
         // Once connected, publish an announcement...
-        char message[60];
-        strcpy(message, settings->device_name);
-        strcat(message, " connected");
-        mqttClient.publish(announce_topic, message);
+        mqttClient.publish(connect_topic, "1", true);
+
+        // publish version
+        char version_topic[60];
+        strcpy(version_topic, base_topic);
+        strcat(version_topic, "version");
+        mqttClient.publish(version_topic, compile_date, true);
 
         // ... and subscribe
         char topic[60];
