@@ -67,13 +67,18 @@ void Mqtt::initWithSettings(Settings *settings) {
 
 void Mqtt::loop() {
     if (!mqttClient.connected()) {
-        if (!WiFi.isConnected()) {
+        Serial.println("MQTT disconnected");
+
+        if ( !WiFi.isConnected()) {
+            Serial.print("Wifi connection status in mqtt::loop is: ");
+            Serial.println(WiFi.status());
             return;
         }
         long now = millis();
         if (now - this->lastReconnectAttempt > 5000) {
             this->lastReconnectAttempt = now;
             // Attempt to reconnect
+            Serial.println("Attempting mqtt connect");
             if (this->reconnect()) {
                 this->lastReconnectAttempt = 0;
             }
