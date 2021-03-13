@@ -61,6 +61,9 @@ Example messages:
 }
 ```
 
+## Known problems
+* If mqtt broker restarts, the H801 does not automatically reconnect to the broker. It reconnects to mqtt after requesting the web interface. I still don't understand why this happens.
+
 ## Links
 * Find more about how to use this project with Loxone here: https://www.loxwiki.eu/pages/viewpage.action?pageId=13307747#RGBWWWLANLEDDimmermitH801(ESP8266)-EinenochganzandereFirmware:
 

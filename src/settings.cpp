@@ -4,8 +4,8 @@ void Settings::init() {
     strcat(this->device_name, String(this->chip_id).c_str()); // add chip-ID to default device name
 
     if (SPIFFS.begin()) {
-        if (SPIFFS.exists("/config.json")) {
-            File configFile = SPIFFS.open("/config.json", "r");
+        if (SPIFFS.exists(F("/config.json"))) {
+            File configFile = SPIFFS.open(F("/config.json"), "r");
             if (configFile) {
                 size_t size = configFile.size();
                 std::unique_ptr<char[]> buf(new char[size]);
@@ -15,36 +15,36 @@ void Settings::init() {
                 DeserializationError err = deserializeJson(doc, buf.get());
 
                 if (err) {
-                    Serial.println("failed to load json config");
+                    Serial.println(F("failed to load json config"));
                 } else {
-                    Serial.println("Settings were loaded:");
+                    Serial.println(F("Settings were loaded:"));
                     serializeJson(doc, Serial);
                     
-                    strcpy(this->mqtt_server, doc["mqtt_server"]);
-                    strcpy(this->mqtt_port, doc["mqtt_port"]);
-                    strcpy(this->mqtt_user, doc["mqtt_user"].as<char*>());
-                    strcpy(this->mqtt_pass, doc["mqtt_pass"].as<char*>());
-                    strcpy(this->device_name, doc["device_name"]);
+                    strcpy(this->mqtt_server, doc[F("mqtt_server")]);
+                    strcpy(this->mqtt_port, doc[F("mqtt_port")]);
+                    strcpy(this->mqtt_user, doc[F("mqtt_user")].as<char*>());
+                    strcpy(this->mqtt_pass, doc[F("mqtt_pass")].as<char*>());
+                    strcpy(this->device_name, doc[F("device_name")]);
                 }
             }
         }
     } else {
-        Serial.println("failed to mount file system");
+        Serial.println(F("failed to mount file system"));
     }
 }
 
 void Settings::save() {
-    Serial.println("Settings are about to be saved.");
+    Serial.println(F("Settings are about to be saved."));
     StaticJsonDocument<256> doc; // 256 hopefully is enough for everybody, my config has 149 bytes
-    doc["mqtt_server"] = this->mqtt_server;
-    doc["mqtt_port"]   = this->mqtt_port;
-    doc["mqtt_user"]   = this->mqtt_user;
-    doc["mqtt_pass"]   = this->mqtt_pass;
-    doc["device_name"] = this->device_name;
+    doc[F("mqtt_server")] = this->mqtt_server;
+    doc[F("mqtt_port")]   = this->mqtt_port;
+    doc[F("mqtt_user")]   = this->mqtt_user;
+    doc[F("mqtt_pass")]   = this->mqtt_pass;
+    doc[F("device_name")] = this->device_name;
 
-    File configFile = SPIFFS.open("/config.json", "w");
+    File configFile = SPIFFS.open(F("/config.json"), "w");
     if (!configFile) {
-      Serial.println("failed to open config file for writing");
+      Serial.println(F("failed to open config file for writing"));
     }
 
     serializeJson(doc, Serial);
@@ -53,7 +53,7 @@ void Settings::save() {
 }
 
 void Settings::remove() {
-    SPIFFS.remove("/config.json");
+    SPIFFS.remove(F("/config.json"));
 }
 
 Settings settings;

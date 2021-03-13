@@ -5,9 +5,9 @@ PubSubClient mqttClient(espClient);
 
 void mqttCallback(char *topic, byte *payload, unsigned int length) {
     // handle message arrived
-    Serial.print("Got new mqtt message on topic: ");
+    Serial.print(F("Got new mqtt message on topic: "));
     Serial.println(topic);
-    Serial.print("Payload: ");
+    Serial.print(F("Payload: "));
     Serial.println((char *)payload);
 
     // retrieve channel information from topic
@@ -17,18 +17,18 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
         channel_str = channel_str + 1;
         channel = atoi(channel_str);
     } else {
-        Serial.println("could not retrieve proper channel");
+        Serial.println(F("could not retrieve proper channel"));
         return;
     }
-    Serial.print("Channel: ");
+    Serial.print(F("Channel: "));
     Serial.println(channel);
 
     // parse json object
-    StaticJsonDocument<256> message; // 256 hopefully is enough for everybody, my config has 149 bytes
+    StaticJsonDocument<128> message;
     DeserializationError err = deserializeJson(message, (char *)payload, length);
 
     if (err) {
-        Serial.println("got broken json message");
+        Serial.println(F("got broken json message"));
         Serial.println(err.c_str());
         return;
     }
@@ -59,26 +59,32 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
     }
 }
 
-void Mqtt::initWithSettings(Settings *settings) {
-    this->settings = settings;
-    mqttClient.setServer(settings->mqtt_server, atoi(settings->mqtt_port));
+void Mqtt::init() {
+    mqttClient.setServer(settings.mqtt_server, atoi(settings.mqtt_port));
     mqttClient.setCallback(mqttCallback);
 }
 
 void Mqtt::loop() {
     if (!mqttClient.connected()) {
-        Serial.println("MQTT disconnected");
+        Serial.println(F("MQTT disconnected"));
+        Serial.print(F("free heap: "));
+        Serial.println(ESP.getFreeHeap(),DEC);
 
-        if ( !WiFi.isConnected()) {
-            Serial.print("Wifi connection status in mqtt::loop is: ");
-            Serial.println(WiFi.status());
-            return;
-        }
+        Serial.print(F("heap fragmentation: "));
+        Serial.println(ESP.getHeapFragmentation(),DEC);
+
+
+        // this should improve resilience in bad wifi situations, but it causes to break reconnects to mqtt broker
+        // if ( !WiFi.isConnected()) {
+        //     Serial.print(F("Wifi connection status in mqtt::loop is: "));
+        //     Serial.println(WiFi.status());
+        //     return;
+        // }
         long now = millis();
         if (now - this->lastReconnectAttempt > 5000) {
             this->lastReconnectAttempt = now;
             // Attempt to reconnect
-            Serial.println("Attempting mqtt connect");
+            Serial.println(F("Attempting mqtt connect"));
             if (this->reconnect()) {
                 this->lastReconnectAttempt = 0;
             }
@@ -95,7 +101,7 @@ boolean Mqtt::reconnect() {
     // prepare base topic
     char base_topic[30];
     strcat(base_topic, "H801/");
-    strcat(base_topic, settings->device_name);
+    strcat(base_topic, settings.device_name);
     strcat(base_topic, "/"); 
 
     char connect_topic[60];
@@ -105,7 +111,7 @@ boolean Mqtt::reconnect() {
     // create a disconnect message as last will
     const char will_message[] = "0";
 
-    if (mqttClient.connect(settings->device_name, settings->mqtt_user, settings->mqtt_pass, connect_topic, 0, true, will_message, false)) { 
+    if (mqttClient.connect(settings.device_name, settings.mqtt_user, settings.mqtt_pass, connect_topic, 0, true, will_message, false)) { 
         // Once connected, publish an announcement...
         mqttClient.publish(connect_topic, "1", true);
 
@@ -118,8 +124,8 @@ boolean Mqtt::reconnect() {
         // ... and subscribe
         char topic[60];
         strcpy(topic, base_topic);
-        strcat(topic, "channel/#");
-        Serial.print("mqtt subscribe to topic ");
+        strcat(topic, "channel/#"); 
+        Serial.print(F("mqtt subscribe to topic "));
         Serial.println(topic);
         mqttClient.subscribe(topic, 1);
     }

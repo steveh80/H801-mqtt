@@ -8,7 +8,6 @@ class Wifi
 {  
     private:
         WiFiManager wifiManager;
-        Settings* settings;
 
     public:
         void init();

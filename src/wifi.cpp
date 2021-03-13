@@ -5,14 +5,12 @@ void saveConfigCallback () {
     shouldSaveConfig = true;
 }
 
-void Wifi::initWithSettings(Settings* settings) { 
-    this->settings = settings;
-
-    WiFiManagerParameter custom_mqtt_server("server", "mqtt server", settings->mqtt_server, 40);
-    WiFiManagerParameter custom_mqtt_port("port", "mqtt port", settings->mqtt_port, 6);
+void Wifi::init() { 
+    WiFiManagerParameter custom_mqtt_server("server", "mqtt server", settings.mqtt_server, 40);
+    WiFiManagerParameter custom_mqtt_port("port", "mqtt port", settings.mqtt_port, 6);
     WiFiManagerParameter custom_mqtt_user("user", "mqtt username", "", 20);
     WiFiManagerParameter custom_mqtt_pass("pass", "mqtt password", "", 20);
-    WiFiManagerParameter custom_device_name("devicename", "device name", settings->device_name, 30);
+    WiFiManagerParameter custom_device_name("devicename", "device name", settings.device_name, 30);
 
     wifiManager.setSaveConfigCallback(saveConfigCallback);
 
@@ -24,25 +22,25 @@ void Wifi::initWithSettings(Settings* settings) {
 
     this->connect();
 
-    Serial.println("Wifi connected");
+    Serial.println(F("Wifi connected"));
 
     if ( shouldSaveConfig ) {
-        strcpy(settings->mqtt_server, custom_mqtt_server.getValue());
-        strcpy(settings->mqtt_port, custom_mqtt_port.getValue());
-        strcpy(settings->mqtt_user, custom_mqtt_user.getValue());
-        strcpy(settings->mqtt_pass, custom_mqtt_pass.getValue());
-        strcpy(settings->device_name, custom_device_name.getValue());
-        settings->save();
+        strcpy(settings.mqtt_server, custom_mqtt_server.getValue());
+        strcpy(settings.mqtt_port, custom_mqtt_port.getValue());
+        strcpy(settings.mqtt_user, custom_mqtt_user.getValue());
+        strcpy(settings.mqtt_pass, custom_mqtt_pass.getValue());
+        strcpy(settings.device_name, custom_device_name.getValue());
+        settings.save();
     }
 }
 
 void Wifi::connect() {
-    wifiManager.setHostname(settings->device_name);
+    wifiManager.setHostname(settings.device_name);
     wifiManager.setConfigPortalTimeout(120);
 
     // This will block until a WiFi is connected, or the timeout has elapsed
     if ( ! wifiManager.autoConnect("H801") ) {
-        Serial.println("failed to connect and hit timeout");
+        Serial.println(F("failed to connect and hit timeout"));
         delay(3000);
         ESP.restart();
         delay(5000);
@@ -50,8 +48,8 @@ void Wifi::connect() {
 }
 
 void Wifi::resetSettings() {
-    Serial.println("Wifimanager settings are about to be deleted!");
-    this->settings->remove();
+    Serial.println(F("Wifimanager settings are about to be deleted!"));
+    settings.remove();
     wifiManager.resetSettings();
 }
 
