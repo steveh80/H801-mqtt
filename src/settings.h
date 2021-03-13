@@ -1,5 +1,4 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -25,5 +24,3 @@ class Settings
 };
 
 extern Settings settings;
-
-#endif
