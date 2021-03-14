@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <ESP8266mDNS.h>
+// #include <ESP8266mDNS.h>
 
 #include "settings.h"
 #include "otaupdate.h"
@@ -15,10 +15,10 @@ void setup() {
     settings.init();
     wifi.init();
 
-    if (!MDNS.begin(settings.device_name)) {
-        Serial.println(F("Error setting up MDNS responder"));
-    }
-    MDNS.addService("http", "tcp", 80);
+    // if (!MDNS.begin(settings.device_name)) {
+    //     Serial.println(F("Error setting up MDNS responder"));
+    // }
+    // MDNS.addService("http", "tcp", 80);
 
     mqtt.init();
     otaUpdate.init();
@@ -29,8 +29,7 @@ void setup() {
 
 void loop() {
     wifi.loop();
-    mqtt.loop();
-    MDNS.update();
+    // MDNS.update();
     otaUpdate.loop();
     virt_dmx.loop();
     dimmer.loop();
