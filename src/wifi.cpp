@@ -39,7 +39,7 @@ void Wifi::connect() {
     wifiManager.setConfigPortalTimeout(120);
 
     // This will block until a WiFi is connected, or the timeout has elapsed
-    if ( ! wifiManager.autoConnect("H801") ) {
+    if ( !wifiManager.autoConnect("H801") ) {
         Serial.println(F("failed to connect and hit timeout"));
         delay(3000);
         ESP.restart();
@@ -53,11 +53,9 @@ void Wifi::resetSettings() {
     wifiManager.resetSettings();
 }
 
-void Wifi::loop() { 
-    // ensure wifi connection
-    // If we're already connected, do nothing
-    if (!WiFi.isConnected()) {
-        this->connect();
+void Wifi::loop() {
+    if ( ! WiFi.isConnected() ) {
+        connect();
     }
 }
 

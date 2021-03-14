@@ -5,3 +5,5 @@
 .vscode/ipch
 
 data/config.json
+.vscode/extensions.json
+.vscode/settings.json
