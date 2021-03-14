@@ -13,7 +13,7 @@ void setup() {
     Serial.set_tx(2);
 
     settings.init();
-    wifi.init();
+    wifi.init(); // will block until connected, else restart ESP
 
     // if (!MDNS.begin(settings.device_name)) {
     //     Serial.println(F("Error setting up MDNS responder"));
