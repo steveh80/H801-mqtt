@@ -36,6 +36,7 @@ void OTAUpdate::addRoutes() {
         httpServer.client().stop();
         wifi.resetSettings();
         settings.remove();
+        delay(1000);
         ESP.restart();
     });
 

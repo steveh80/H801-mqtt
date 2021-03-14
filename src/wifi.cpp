@@ -53,7 +53,10 @@ void Wifi::resetSettings() {
     wifiManager.resetSettings();
 }
 
-void Wifi::loop() { 
+void Wifi::loop() {
+    if ( ! WiFi.isConnected() ) {
+        connect();
+    }
 }
 
 Wifi wifi;

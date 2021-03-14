@@ -87,12 +87,12 @@ void connectToMqtt() {
     mqttClient.connect();
 }
 
-void connectToWifi() {
-    Serial.println("mqtt client is trying reconnect wifi");
-    if (!WiFi.isConnected()) {
-        WiFi.begin();
-    }
-}
+// void connectToWifi() {
+//     Serial.println("mqtt client is trying reconnect wifi");
+//     if (!WiFi.isConnected()) {
+//         WiFi.begin();
+//     }
+// }
 
 WiFiEventHandler wifiConnectHandler;
 WiFiEventHandler wifiDisconnectHandler;
@@ -106,7 +106,7 @@ void onWifiConnect(const WiFiEventStationModeGotIP& event) {
 void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
     Serial.printf("Disconnected from Wi-Fi event=%d\n",event.reason);
     mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
-    wifiReconnectTimer.once(RECONNECT_DELAY_W, connectToWifi);
+    // wifiReconnectTimer.once(RECONNECT_DELAY_W, connectToWifi);
 }
 
 void onMqttDisconnect(int8_t reason) {

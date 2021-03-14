@@ -5,7 +5,7 @@
 #include "dimmer.h"
 
 #define RECONNECT_DELAY_M   5
-#define RECONNECT_DELAY_W   3
+// #define RECONNECT_DELAY_W   5
 #define START_WITH_CLEAN_SESSION   true
 
 const char topic_prefix[] = "H801";
